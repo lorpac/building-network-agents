@@ -1,3 +1,4 @@
 .vscode
-includes/old
-models/snapshots*
+includes
+models/snapshots
+models/results

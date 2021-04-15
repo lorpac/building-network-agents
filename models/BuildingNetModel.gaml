@@ -12,15 +12,20 @@ model BuildingNetModel
 global {
 	float step <- 1 #mn;
 	
-	string simulation_name <- "Montplaisir-Lumiere";
-	bool autosave <- true;
+	string simulation_name;
 	int num_cycles <- 5000;
-	int number_of_pedestrians <- 10;
-	int grid_resolution <- 50;
+	int number_of_pedestrians <- 50;
+	int grid_resolution <- 100;
 	float restart_probability <- 0.05;
+	list parameters <- ["simulation_name: ", simulation_name,
+		"\nnum_cycles: ", string(num_cycles),
+		"\nnumber_of_pedestrians: ", string(number_of_pedestrians),
+		"\ngrid_resolution: ", string(grid_resolution),
+		"\nrestart_probability: ", string(restart_probability)
+	]; 
 	
-	file buildings_shapefile <- file("../includes/" + simulation_name +".shp");
-	file empty_space_shapefile <- file("../includes/" + simulation_name +"_empty.shp");
+	file buildings_shapefile <- file("../includes/" + simulation_name +"merged_buildings.shp");
+	file empty_space_shapefile <- file("../includes/" + simulation_name +"merged_buildings_empty.shp");
 	
 	geometry total_shape <- envelope(buildings_shapefile);
 	geometry shape <- total_shape;
@@ -32,6 +37,8 @@ global {
 	}
 	
 	reflex halting when: cycle = num_cycles {
+		save cell_time_inside to: "results/" + simulation_name + "/" + simulation_name + "-mean-exit-time.csv" type: "csv";
+		save parameters to: "results/" + simulation_name + "/" + simulation_name + "-parameters.csv" type: "csv";
         do pause;
     }
 	
@@ -169,25 +176,76 @@ grid cell_time_inside width: grid_resolution height: grid_resolution {
 }
 
 
-experiment test_buildings type: gui {
+experiment Manhattan type: gui{
 	
-	parameter "Simulation name" var:simulation_name;
+	parameter "Simulation name" var:simulation_name <- "Manhattan_2020_11_12";
 	parameter "N. pedestrians" var:number_of_pedestrians;
-	parameter "Autosave" var:autosave;
 	parameter "Number of cycles" var:num_cycles;
 	parameter "Grid resolution" var:grid_resolution;
 	parameter "Restart probability" var:restart_probability;
 	
 	
 	output {
-		display display1 name: "Presence" autosave: autosave {
+		display display1 name: "Presence" autosave: true {
 			grid cell_presence ;
 			species building aspect: base ;
+			image gis:"../includes/" + simulation_name + "buildingsOSM.shp" color: rgb('black');
 			species pedestrian aspect:base;
 		}
-		display display2 name: "Mean exit time" autosave: autosave {
+		display display2 name: "Mean exit time" autosave: true {
 			grid cell_time_inside ;
 			species building aspect: base ;
+			image gis:"../includes/" + simulation_name + "buildingsOSM.shp" color: rgb('black');
+			species pedestrian aspect:base;
+		}
+	}
+}
+
+experiment Monplaisir type: gui{
+	
+	parameter "Simulation name" var:simulation_name <- "Monplaisir_2020_11_12";
+	parameter "N. pedestrians" var:number_of_pedestrians;
+	parameter "Number of cycles" var:num_cycles;
+	parameter "Grid resolution" var:grid_resolution;
+	parameter "Restart probability" var:restart_probability;
+	
+	
+	output {
+		display display1 name: "Presence" autosave: true {
+			grid cell_presence ;
+			species building aspect: base ;
+			image gis:"../includes/" + simulation_name + "buildingsOSM.shp" color: rgb('black');
+			species pedestrian aspect:base;
+		}
+		display display2 name: "Mean exit time" autosave: true {
+			grid cell_time_inside ;
+			species building aspect: base ;
+			image gis:"../includes/" + simulation_name + "buildingsOSM.shp" color: rgb('black');
+			species pedestrian aspect:base;
+		}
+	}
+}
+
+experiment Charpennes type: gui{
+	
+	parameter "Simulation name" var:simulation_name <- "Charpennes_2020_11_12";
+	parameter "N. pedestrians" var:number_of_pedestrians;
+	parameter "Number of cycles" var:num_cycles;
+	parameter "Grid resolution" var:grid_resolution;
+	parameter "Restart probability" var:restart_probability;
+	
+	
+	output {
+		display display1 name: "Presence" autosave: true {
+			grid cell_presence ;
+			species building aspect: base ;
+			image gis:"../includes/" + simulation_name + "buildingsOSM.shp" color: rgb('black');
+			species pedestrian aspect:base;
+		}
+		display display2 name: "Mean exit time" autosave: true {
+			grid cell_time_inside ;
+			species building aspect: base ;
+			image gis:"../includes/" + simulation_name + "buildingsOSM.shp" color: rgb('black');
 			species pedestrian aspect:base;
 		}
 	}
