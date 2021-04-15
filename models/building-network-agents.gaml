@@ -13,6 +13,9 @@ global {
 	float step <- 1 #mn;
 	
 	string simulation_name;
+	bool merged;
+	file buildings_shapefile;
+	file empty_space_shapefile;
 	int num_cycles <- 5000;
 	int number_of_pedestrians <- 50;
 	int grid_resolution <- 100;
@@ -24,8 +27,7 @@ global {
 		"\nrestart_probability: ", string(restart_probability)
 	]; 
 	
-	file buildings_shapefile <- file("../includes/" + simulation_name +"merged_buildings.shp");
-	file empty_space_shapefile <- file("../includes/" + simulation_name +"merged_buildings_empty.shp");
+	
 	
 	geometry total_shape <- envelope(buildings_shapefile);
 	geometry shape <- total_shape;
@@ -37,8 +39,15 @@ global {
 	}
 	
 	reflex halting when: cycle = num_cycles {
-		save cell_time_inside to: "results/" + simulation_name + "/" + simulation_name + "-mean-exit-time.csv" type: "csv";
-		save parameters to: "results/" + simulation_name + "/" + simulation_name + "-parameters.csv" type: "csv";
+		if merged {
+			save cell_time_inside to: "results/" + simulation_name + "/" + simulation_name + "-mean-exit-time.csv" type: "csv";
+			save parameters to: "results/" + simulation_name + "/" + simulation_name + "-parameters.csv" type: "csv";
+		}
+		else {
+			save cell_time_inside to: "results/" + simulation_name + "_not_merged/" + simulation_name + "-mean-exit-time.csv" type: "csv";
+			save parameters to: "results/" + simulation_name + "_not_merged/" + simulation_name + "-parameters.csv" type: "csv";
+		}
+		
         do pause;
     }
 	
@@ -179,6 +188,9 @@ grid cell_time_inside width: grid_resolution height: grid_resolution {
 experiment Manhattan type: gui{
 	
 	parameter "Simulation name" var:simulation_name <- "Manhattan_2020_11_12";
+	parameter "Merged" var:merged <- true;
+	parameter "Full shape file" var:buildings_shapefile <- file("../includes/" + simulation_name +"merged_buildings.shp");
+	parameter "Empty shape file" var:empty_space_shapefile <- file("../includes/" + simulation_name +"merged_buildings_empty.shp");
 	parameter "N. pedestrians" var:number_of_pedestrians;
 	parameter "Number of cycles" var:num_cycles;
 	parameter "Grid resolution" var:grid_resolution;
@@ -204,6 +216,9 @@ experiment Manhattan type: gui{
 experiment Monplaisir type: gui{
 	
 	parameter "Simulation name" var:simulation_name <- "Monplaisir_2020_11_12";
+	parameter "Merged" var:merged <- true;
+	parameter "Full shape file" var:buildings_shapefile <- file("../includes/" + simulation_name +"merged_buildings.shp");
+	parameter "Empty shape file" var:empty_space_shapefile <- file("../includes/" + simulation_name +"merged_buildings_empty.shp");
 	parameter "N. pedestrians" var:number_of_pedestrians;
 	parameter "Number of cycles" var:num_cycles;
 	parameter "Grid resolution" var:grid_resolution;
@@ -229,6 +244,9 @@ experiment Monplaisir type: gui{
 experiment Charpennes type: gui{
 	
 	parameter "Simulation name" var:simulation_name <- "Charpennes_2020_11_12";
+	parameter "Merged" var:merged <- true;
+	parameter "Full shape file" var:buildings_shapefile <- file("../includes/" + simulation_name +"merged_buildings.shp");
+	parameter "Empty shape file" var:empty_space_shapefile <- file("../includes/" + simulation_name +"merged_buildings_empty.shp");
 	parameter "N. pedestrians" var:number_of_pedestrians;
 	parameter "Number of cycles" var:num_cycles;
 	parameter "Grid resolution" var:grid_resolution;
@@ -250,3 +268,57 @@ experiment Charpennes type: gui{
 		}
 	}
 }
+
+//experiment Lyon_center type: gui{
+//	
+//	parameter "Simulation name" var:simulation_name <- "Lyon_city_center_2021_1_29";
+//	parameter "Merged" var:merged <- true;
+//	parameter "Full shape file" var:buildings_shapefile <- file("../includes/" + simulation_name +"merged_buildings.shp");
+//	parameter "Empty shape file" var:empty_space_shapefile <- file("../includes/" + simulation_name +"merged_buildings_empty.shp");
+//	parameter "N. pedestrians" var:number_of_pedestrians;
+//	parameter "Number of cycles" var:num_cycles;
+//	parameter "Grid resolution" var:grid_resolution;
+//	parameter "Restart probability" var:restart_probability;
+//	
+//	
+//	output {
+//		display display1 name: "Presence" autosave: true {
+//			grid cell_presence ;
+//			species building aspect: base ;
+//			image gis:"../includes/" + simulation_name + "buildingsOSM.shp" color: rgb('black');
+//			species pedestrian aspect:base;
+//		}
+//		display display2 name: "Mean exit time" autosave: true {
+//			grid cell_time_inside ;
+//			species building aspect: base ;
+//			image gis:"../includes/" + simulation_name + "buildingsOSM.shp" color: rgb('black');
+//			species pedestrian aspect:base;
+//		}
+//	}
+//}
+//
+//experiment Lyon_center_not_merged type: gui{
+//	string simulation_name <- "Lyon_city_center_2021_1_29";
+//	parameter "Simulation name" var:simulation_name <- simulation_name;
+//	parameter "Merged" var:merged <- false;
+//	parameter "Full shape file" var:buildings_shapefile <- file("../includes/" + simulation_name +"buildingsOSM.shp");
+//	parameter "Empty shape file" var:empty_space_shapefile <- file("../includes/" + simulation_name +"buildingsOSM_empty.shp");
+//	parameter "N. pedestrians" var:number_of_pedestrians;
+//	parameter "Number of cycles" var:num_cycles;
+//	parameter "Grid resolution" var:grid_resolution;
+//	parameter "Restart probability" var:restart_probability;
+//	
+//	
+//	output {
+//		display display1 name: "Presence" autosave: true {
+//			grid cell_presence ;
+//			species building aspect: base ;
+//			species pedestrian aspect:base;
+//		}
+//		display display2 name: "Mean exit time" autosave: true {
+//			grid cell_time_inside ;
+//			species building aspect: base ;
+//			species pedestrian aspect:base;
+//		}
+//	}
+//}
